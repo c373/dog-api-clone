@@ -18,12 +18,12 @@ app.get('/api/facts', (req,res) => {
     console.log("Number of facts requested: ", req.query.number);
     const number = parseInt(req.query.number, 10)
 
-	// create a set of indexes to use for the final response
+	// create a set of indices to use for the final response
     const indexSet = new Set();
 
 	// respond with error if the requested amount exceeds the number of unique
 	// facts that our api can provide
-	if (number > numFacts + 1) {
+	if (number > numFacts) {
 		respond(res, 400, null, false);
 		return;
 	}

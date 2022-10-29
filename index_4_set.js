@@ -2,11 +2,11 @@
 // Modify this code so that response does not return duplicate facts
 
 import express from 'express';
-import {data} from './facts.js';
+import {data} from './test500k.js';
 
 
 const app = express();
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 3001);
 
 const numFacts = data.length;
 function getRandomInt(max) {
@@ -18,7 +18,9 @@ app.get('/api/facts', (req,res) => {
     console.log("Number of facts requested: ", req.query.number);
     const number = parseInt(req.query.number, 10)
 
-	// create a set of indices to use for the final response
+	var start = new Date().getTime();
+
+	// create a set of indexes to use for the final response
     const indexSet = new Set();
 
 	// respond with error if the requested amount exceeds the number of unique
@@ -51,7 +53,7 @@ app.get('/api/facts', (req,res) => {
 	const nHalfNumFacts = Math.floor(numFacts / 2);
 
 	if( number > nHalfNumFacts) {
-		nRequestedIndices = number - nHalfNumFacts;
+		nRequestedIndices = numFacts - number;
 		invertIndexSet = true;
 	}
 	else {
@@ -66,6 +68,9 @@ app.get('/api/facts', (req,res) => {
 	console.log("Number of unique facts: ", factsArray.length);
 
 	respond(res, 200, factsArray, true);
+
+	var end = new Date().getTime();
+	console.log("The api took: ", end - start, " milliseconds to respond.\n");
 
   });
 

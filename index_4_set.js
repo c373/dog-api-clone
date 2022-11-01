@@ -13,14 +13,24 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
+// endpoint to test the shuffle function
+app.get('/api/shuffle', (req, res) => {
+	let array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+	console.log("array not shuffled ", array);
+	shuffleArray(array);
+	console.log("array shuffled ", array);
+	respond(res, 200, array, true);
+});
+
 app.get('/api/facts', (req,res) => {
     console.log(req.query); // display parsed querystring object
     console.log("Number of facts requested: ", req.query.number);
     const number = parseInt(req.query.number, 10)
 
+	// used to time the api response time
 	var start = new Date().getTime();
 
-	// create a set of indexes to use for the final response
+	// create a set of indices to use for the final response
     const indexSet = new Set();
 
 	// respond with error if the requested amount exceeds the number of unique
@@ -32,9 +42,14 @@ app.get('/api/facts', (req,res) => {
 
 	// shortcut if ALL the facts are requested
 	if (number == numFacts) {
-		const shuffledData = Array.from(data);
-		// TODO : SHUFFLE shuffledData
+		let shuffledData = [...data];
+		shuffleArray(shuffledData); // shuffle the array
+
+		console.log("Number of unique facts: ", shuffledData.length);
 		respond(res, 200, shuffledData, true);
+
+		var end = new Date().getTime();
+		console.log("The api took: ", end - start, " milliseconds to respond.\n");
 		return;
 	}
 
@@ -43,7 +58,7 @@ app.get('/api/facts', (req,res) => {
 
 	// if the requested number of facts exceeds 50% of the total number of facts
 	// available... then generate a random number of indices to EXCLUDE from
-	// the final set and return the remainder (shuffled : TODO)
+	// the final set and return the remainder as a shuffled array
 
 	// the reason for doing it this way is that if someone requests numFacts - 1
 	// then the old algorithm would just spin and spin until it generated the
@@ -52,6 +67,7 @@ app.get('/api/facts', (req,res) => {
 	// a high number of requested facts
 	const nHalfNumFacts = Math.floor(numFacts / 2);
 
+	// determine if the indexSet will be inverted or not
 	if( number > nHalfNumFacts) {
 		nRequestedIndices = numFacts - number;
 		invertIndexSet = true;
@@ -59,12 +75,20 @@ app.get('/api/facts', (req,res) => {
 	else {
 		nRequestedIndices = number;
 	}
+
+	// generate the required indices
 	getRandomIndices(nRequestedIndices, indexSet);
 
-	console.log("indexSet size: ", indexSet.size, "inverted: ", invertIndexSet);
 
+	// the factsArray that will store the final set of facts
 	const factsArray = getFactsArrayFromIndexSet(indexSet, invertIndexSet, number);
 
+	// shuffle the array if the indexSet was inverted
+	if (invertIndexSet) {
+		shuffleArray(factsArray);
+	}
+
+	console.log("indexSet size: ", indexSet.size, "inverted: ", invertIndexSet);
 	console.log("Number of unique facts: ", factsArray.length);
 
 	respond(res, 200, factsArray, true);
@@ -100,11 +124,6 @@ function getFactsArrayFromIndexSet(indexSet, invertSet, nRequested) {
 			index = index + 1 > numFacts ? 0 : index + 1;
 		}
 
-		// the last step would be to shuffle factsSet so that it doesn't always
-		// have the same order when the indexSet should be inverted
-
-		// TODO : SHUFFLE THE ARRAY WITH FISHER-YATES ALGO
-
 		return factsSet;
 	}
 
@@ -113,6 +132,18 @@ function getFactsArrayFromIndexSet(indexSet, invertSet, nRequested) {
 		factsSet.push(data[index]);
 	});
 	return factsSet;
+}
+
+function shuffleArray(dataArray) {
+	let lastIndex = dataArray.length - 1;
+	let temp;
+	while (lastIndex > 0) {
+		let randomIndex =  getRandomInt(lastIndex);
+		temp = dataArray[lastIndex];
+		dataArray[lastIndex] = dataArray[randomIndex];
+		dataArray[randomIndex] = temp;
+		lastIndex--;
+	}
 }
 
 // basic respond function

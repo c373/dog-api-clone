@@ -24,7 +24,7 @@ app.get('/api/facts', (req,res) => {
 	let i = 0;
 	while(i < number) {
         const facts_index = getRandomInt(numFacts);
-		if(!factsArray.includes(facts_index.toString())) {
+		if(!factsArray.includes(data[facts_index])) {
 			factsArray.push(data[facts_index]);
 			i++;
 		}

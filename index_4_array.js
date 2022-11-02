@@ -13,12 +13,14 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
+let start, end, elapsed;
+
 app.get('/api/facts', (req,res) => {
     console.log(req.query); // display parsed querystring object
     console.log("Number of facts requested: ", req.query.number);
     const number = parseInt(req.query.number, 10)
 
-	var start = new Date().getTime();
+	start = performance.now();
 
     const factsArray = []
 	let i = 0;
@@ -32,17 +34,21 @@ app.get('/api/facts', (req,res) => {
 
 	respond(res, 200, factsArray, true);
 
-	var end = new Date().getTime();
-	console.log("The api took: ", end - start, " milliseconds to respond.\n");
   });
 
 function respond(res, status, genData, success) {
+	end = performance.now();
+	elapsed = end - start;
+
 	res.type('json');
 	res.status(status);
 	res.json({
 		facts: genData,
-		success: success
+		success: success,
+		timeElapsed: elapsed
 	})
+
+	console.log("The api took: ", elapsed, " milliseconds to respond.\n");
 }
 
 app.use((req, res) => {

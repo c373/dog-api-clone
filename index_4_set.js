@@ -22,13 +22,15 @@ app.get('/api/shuffle', (req, res) => {
 	respond(res, 200, array, true);
 });
 
+let start, end, elapsed;
+
 app.get('/api/facts', (req,res) => {
     console.log(req.query); // display parsed querystring object
     console.log("Number of facts requested: ", req.query.number);
     const number = parseInt(req.query.number, 10)
 
 	// used to time the api response time
-	var start = new Date().getTime();
+	start = performance.now();
 
 	// create a set of indices to use for the final response
     const indexSet = new Set();
@@ -48,8 +50,6 @@ app.get('/api/facts', (req,res) => {
 		console.log("Number of unique facts: ", shuffledData.length);
 		respond(res, 200, shuffledData, true);
 
-		var end = new Date().getTime();
-		console.log("The api took: ", end - start, " milliseconds to respond.\n");
 		return;
 	}
 
@@ -92,9 +92,6 @@ app.get('/api/facts', (req,res) => {
 	console.log("Number of unique facts: ", factsArray.length);
 
 	respond(res, 200, factsArray, true);
-
-	var end = new Date().getTime();
-	console.log("The api took: ", end - start, " milliseconds to respond.\n");
 
   });
 
@@ -148,12 +145,18 @@ function shuffleArray(dataArray) {
 
 // basic respond function
 function respond(res, status, genData, success) {
+	end = performance.now();
+	elapsed = end - start;
+
 	res.type('json');
 	res.status(status);
 	res.json({
 		facts: genData,
-		success: success
+		success: success,
+		timeElapsed: elapsed
 	})
+
+	console.log("The api took: ", elapsed, " milliseconds to respond.\n");
 }
 
 app.use((req, res) => {

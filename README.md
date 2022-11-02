@@ -13,7 +13,7 @@ The easy solution would be to check whether the array already contains the value
 
 A more involved solution that I've been thinking about would be to modify the random number generation function to accept weighted parameters that are adjusted with each number that is generated to help guide it's output to try and avoid generating duplicates as much as possible.
 
-If I can  pull it off, I might be able to break the total range of possible random numbers into subsections that I can then use concurrently to generate as many random numbers as I want as fast as the processor can go with minimal collisions and optimal efficiency.
+If I can  pull it off, I might be able to break the total range of possible random numbers into subsections that I can then use to concurrently generate the random numbers as fast as the processor can go with minimal collisions and optimal efficiency.
 
 It's just a thought at this point.
 
@@ -21,7 +21,7 @@ It's just a thought at this point.
 
 The modified **index_4.js** is the simple fix. The main changes are to the **'/api/facts'** endpoint.
 
-1. We converted the for loop into a while loop to with an external counter to ensure that the counter is only incremented upon successful creation of a unique index. 
+1. We converted the *for* loop into a *while* loop with an external counter to ensure that the counter is only incremented upon successful creation of a unique index. 
 2. Regarding the index creation there is an additional validation step on line 27, where we check if the array already includes the fact corresponding to the index that was generated.
 3. If it does not we add the new fact to the array and increment the counter.
 
@@ -31,9 +31,9 @@ Upon testing I tried requesting a high amount of random facts, and found somethi
 
 This intuitively makes sense when you consider what happens when you request the total number of facts available, the current algorithm has to randomly generate *all* of the indices from 0 to 434.
 
-The problem is that there is no guarantee that the random number generator won't output the same number more than once, this is by design. What you end up with is a monkey with a typewriter, smashing at the keys randomly, expecting to write out a Shakespearean play.
+The problem is that there is no guarantee that the random number generator won't output the same number more than once, this is by design.
 
-So..... for my own amusement, more than anything, I devised a better solution.
+So... for my own amusement, more than anything, I devised a better solution.
 
 ## Revised algorithm
 
@@ -55,13 +55,13 @@ The revised algorithm found in **index_4_set.js** has many more modifications th
 ### Optimized Logic
 *If more than half the total amount of facts available are requested...*
 
-Then the set of indices is then considered an inverted index set containing the indices of the facts to **EXCLUDE** rather than to include in the final response. This solves the issue of trying to generate close to the entire set of indices at random.
+Then the set of indices is then considered an inverted index set containing the indices of the facts to **EXCLUDE** rather than to include in the final response. This solves the issue of trying to generate the entire set of indices at random.
 
 - Example: if someone requests total number of facts - 1, then generate the 1 index to **EXCLUDE** instead of generating the entire set of indices minus the 1 that will be excluded.
 
 *This introduces another issue...*
 
-- If we traverse the array of source data from the beginning, linearly and add everything but, the excluded indices... then the resulting collection of facts will always be in the same order.
+- If we traverse the array of source data from the beginning, linearly and add everything, but the excluded indices... then the resulting collection of facts will always be in the same order.
 
 #### Solution:
 
@@ -73,16 +73,36 @@ Then it's simple, just add the facts by index into the final array.
 
 # Conclusion and Tests
 
-Phew! This seems like a lot of work for essentially the same functionality... **BUT** this revised algorithm really starts to shine when you test it using **LOTS** of data.
+Phew! This might seem like a lot of work for essentially the same functionality... **BUT** this revised algorithm really starts to shine when you test it using **LOTS** of data.
 
-I attribute most of the increase in efficiency to the fact that, it is much quicker populate the Set of indices with random values until you have satisfied the requested amount, than having to check every time if the Array already contains a specific value.
+I attribute most of the increase in efficiency to the fact that, it is much quicker to spam the set with random indices until you have satisfied the requested amount, than it is having to check every time if the array already contains the random number you generated.
 
 Then the logical optimization of inverting the set of indices helps when there is large number of facts requested.
 
 ### To show just how much of an improvement the new algorithm provides I ran some tests.
 
-Both algorithms respond similarly up until 1,000 facts requested. By 10,000 the implementation with the Array is taking an average of 75 milliseconds to respond. Not bad on it's own but when you consider that the  implementation with the Set is responding with an average of 5 milliseconds you start to see the difference... by 100,000 facts requested the Array algo is taking about 1min 40secs to respond, the Set algo? 28 milliseconds. I stopped testing the Array implementation at 375,000 requests where it took a full 10mins+ to respond in comparison to the Set implementation which responded within 77 milliseconds. Actually the Set algo never seemed to ever take longer than ~88 milliseconds to respond. When requesting the full set of data, because of the optimizations, it was responding within an average of ~39 milliseconds.
+### Results:
+
+The additional overhead of the revised algorithm means that when requesting small amounts of items the original algorithm is a tiny bit faster. This advantage is soon lost. Once the number of requested items gets to be about a 1,000... the revised algorithm is operating on average, almost 5x faster then the original.
+
+|# Items Requested|Average Time ^\*^\
+(Revised)|Average Time ^\*^\
+(Original)|Faster|
+|:---:|:---:|:---:|:--:|
+|**10**|0.04|0.03|0.33x (Original)|
+|**100**|0.06|0.05|0.20x (Original)|
+|**1,000**|0.19|1.11|4.84x (Revised)|
+|**10,000**|1.79|122.75 (0.12 sec)|67.6x (Revised)|
+|**20,000**|3.46|648.66 (0.64 sec)|186x (Revised)|
+|**25,000**|5.16|1,123.77 (1.12 sec)|217x (Revised)|
+|**100,000**|14.63|24,083.87 (24.08 sec)|1,645x (Revised)|
+|**200,000**|28.04|133,381.18 (2 min 13 sec)|4,756x (Revised)|
+|**250,000**|33.31|715,988.98 (11 min 56 sec)|21,494x (Revised)|
+|**375,000**|36.71|**N/A**|**N/A**|
+|**499,000**|21.05|**N/A**|**N/A**|
+|**500,000**|11.09|**N/A**|**N/A**|
+||~\*\ milliseconds~|~\*\ milliseconds~|
 
 ### Computer Specs:
-    Processor - 12th Gen Intel(R) Core(TM) i7-12800H   2.40 GHz
-    RAM - 16GB @ 4800MHz
+    Processor - 11th Gen Intel® Core™ i7-1165G7
+    RAM - 16GB @ 4267MHz

@@ -83,11 +83,9 @@ Then the logical optimization of inverting the set of indices helps when there i
 
 ### Results:
 
-The additional overhead of the revised algorithm means that when requesting small amounts of items the original algorithm is a tiny bit faster. This advantage is soon lost. Once the number of requested items gets to be about a 1,000... the revised algorithm is operating on average, almost 5x faster then the original.
+The additional overhead of the revised algorithm means that the original algorithm is a tiny bit faster when requesting small amounts of items. This advantage is soon lost. Once the number of requested items gets to be about a 1,000... the revised algorithm is operating on average, almost 5x faster then the original.
 
-|# Items Requested|Average Time ^\*^\
-(Revised)|Average Time ^\*^\
-(Original)|Faster|
+| # Items Requested | Average Time \*<br/>(Revised) | Average Time \*<br/>(Original)|Faster |
 |:---:|:---:|:---:|:--:|
 |**10**|0.04|0.03|0.33x (Original)|
 |**100**|0.06|0.05|0.20x (Original)|
@@ -101,7 +99,7 @@ The additional overhead of the revised algorithm means that when requesting smal
 |**375,000**|36.71|**N/A**|**N/A**|
 |**499,000**|21.05|**N/A**|**N/A**|
 |**500,000**|11.09|**N/A**|**N/A**|
-||~\*\ milliseconds~|~\*\ milliseconds~|
+||* milliseconds|* milliseconds|
 
 ### Computer Specs:
     Processor - 11th Gen Intel® Core™ i7-1165G7

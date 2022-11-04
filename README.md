@@ -61,7 +61,7 @@ Then the set of indices is then considered an inverted index set containing the 
 
 *This introduces another issue...*
 
-- If we traverse the array of source data from the beginning, linearly and add everything, but the excluded indices... then the resulting collection of facts will always be in the same order.
+- If we traverse the array of source data linearly from the beginning, adding everything, but the excluded indices... then the resulting collection of facts will always be in the same order.
 
 #### Solution:
 

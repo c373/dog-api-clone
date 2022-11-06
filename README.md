@@ -15,7 +15,7 @@ The easy solution would be to check whether the array already contains the value
 and simply generate a new random index until an unused index is generated.
 
 The more involved solution takes a bit more setup but... is also faster when
-dealing with lots of data. To the tune of **21,000x** times faster when serving
+dealing with lots of data. To the tune of **21,000** times faster when serving
 250,000 facts.
 
 [See an explanation of the revised algorithm here.](#revised-algorithm)

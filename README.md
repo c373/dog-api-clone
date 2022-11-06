@@ -14,19 +14,9 @@ fact corresponding to the index generated.
 The easy solution would be to check whether the array already contains the value
 and simply generate a new random index until an unused index is generated.
 
-### Theoretical Solution
-
-A more involved solution that I've been thinking about would be to modify the
-random number generation function to accept weighted parameters that are
-adjusted with each number that is generated to help guide it's output to try and
-avoid generating duplicates as much as possible.
-
-If I can  pull it off, I might be able to break the total range of possible
-random numbers into subsections that I can then use to concurrently generate the
-random numbers as fast as the processor can go with minimal collisions and
-optimal efficiency.
-
-It's just a thought at this point.
+The more involved solution takes a bit more setup but... is also faster when
+dealing with lots of data. To the tune of 21,000 times faster when serving
+100,000 facts. [See an explanation of the revised algorithm here.](#revised-algorithm)
 
 ## Modifications
 
